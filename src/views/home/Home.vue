@@ -24,12 +24,10 @@
   import TabControl from "components/content/tabControl/TabControl";
   import GoodsList from "components/content/goods/GoodsList";
   import Scroll from "components/common/scroll/Scroll";
-  import BackTop from "components/content/back-top/BackTop";
 
   //导入的方法
   import {getHomeMultidata,getHomeGoods} from "network/home";
-  import {debounce} from "common/utils";
-
+  import {itemListenerMinxin,backTop} from "common/mixin";
 
   export default {
 		name: "Home",
@@ -46,10 +44,10 @@
           'sell':{page:0,list:[]}
         },
         currentType:'pop',
-        isShowBackTop:false,
+        // isShowBackTop:false,
         tabOffsetTop:0,
         isTabFixed:false,
-        saveY:0
+        saveY:0,
       }
     },
     components: {
@@ -62,8 +60,8 @@
       TabControl,
       GoodsList,
       Scroll,
-      BackTop
     },
+    mixins:[itemListenerMinxin,backTop],
     created() {
 		  //1.请求多个数据
 		  this.getHomeMultidata();
@@ -73,24 +71,23 @@
       this.getHomeGoods('sell');
     },
     mounted() {
+		  //这个地方img确实被挂载，但是没有占据高度
 		  //1.图片加载的防抖动
-		  const refresh=debounce(this.$refs.scroll.refresh,20)
-      //3.监听item中图片的加载
-      this.$bus.$on('itemImageLoad',()=>{
-        // console.log('图片加载完成')
-        // this.$refs.scroll && this.$refs.scroll.refresh();
-        // this.$refs.scroll && this.$refs.scroll.refresh();
-        refresh()
-      });
-      //2.获取tabControl的offsetTop
+
 
     },
+    //通路scrollTo函数设置离开时位置
     activated() {
 		  this.$refs.scroll.scrollTo(0,this.saveY,0);
 		  this.$refs.scroll.refresh();
     },
+    //记录离开时的位置
     deactivated() {
-		  this.saveY=this.$refs.scroll.getScrollY()
+		  //1.保存Y值
+		  this.saveY=this.$refs.scroll.getScrollY();
+		  //2.取消全局事件的监听
+      //不能只传一个事件，否则所有的事件都被取消，还要传一个监听的函数
+      this.$bus.$off('itemImageLoad',this.itemImgListener)
     },
     methods:{
 		  /*
@@ -112,13 +109,14 @@
         this.$refs.tabControl1.currentIndex=index;
         this.$refs.tabControl2.currentIndex=index;
       },
-      backClick(){
-        this.$refs.scroll.scrollTo(0,0);
-        // console.log(this.$refs.scroll.scroll)
-      },
+      // backClick(){
+      //   this.$refs.scroll.scrollTo(0,0);
+      //   // console.log(this.$refs.scroll.scroll)
+      // },
       homeScroll(position){
         // console.log(position)
         //1.判断backTop是否显示
+        //没抽离到混入
         this.isShowBackTop=(-position.y)>1000;
         //2.决定tabControl是否吸顶
         this.isTabFixed=(-position.y)>this.tabOffsetTop
@@ -129,7 +127,7 @@
       },
       swiperImageLoad(){
         this.tabOffsetTop=this.$refs.tabControl2.$el.offsetTop;
-        console.log(this.tabOffsetTop)
+        // console.log(this.tabOffsetTop)
       },
 
 		  /*

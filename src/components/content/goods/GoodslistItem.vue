@@ -1,6 +1,6 @@
 <template>
   <div class="goods" @click="itemClick">
-    <img :src="goodsItems.show.img" alt="" @load="imageLoad"/>
+    <img :src="showImage" alt="" @load="imageLoad"/>
     <div class="goods-info">
       <p >{{goodsItems.title}}</p>
       <span class="price">{{goodsItems.price}}</span>
@@ -28,6 +28,11 @@
       itemClick(){
         // console.log('xiagnqing')
         this.$router.push('/detail/' + this.goodsItems.iid)
+      }
+    },
+    computed:{
+      showImage(){
+        return this.goodsItems.image || this.goodsItems.show.img
       }
     }
   }

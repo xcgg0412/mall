@@ -1,5 +1,4 @@
 <template>
-  <div>
     <nav-bar>
       <div slot="left" class="back" @click="backClick">
         <img src="~assets/img/common/back.svg" alt="">
@@ -8,7 +7,6 @@
         <div v-for="(item,index) in title" class="title-item" :class="{active:index===currentIndex}" @click="titleClick(index)">{{item}}</div>
       </div>
     </nav-bar>
-  </div>
 </template>
 
 <script>
@@ -27,7 +25,8 @@
     },
     methods:{
       titleClick(index){
-        this.currentIndex=index
+        this.currentIndex=index;
+        this.$emit('titleClick',index)
       },
       backClick(){
         // history.back()
